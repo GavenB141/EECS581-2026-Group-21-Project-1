@@ -1,0 +1,2 @@
+setuptools
+raylib==6.0.1.0
