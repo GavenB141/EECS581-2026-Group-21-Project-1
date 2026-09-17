@@ -1,7 +1,5 @@
 '''
 Author: Jocelyn Miller
-KUID: 3090871
-Assignment 2
 Last Modified: 09.16.26
 Modification: Updated Documentation to work for the Minesweeper Project
 '''
