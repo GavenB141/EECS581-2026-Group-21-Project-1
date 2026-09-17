@@ -4,7 +4,7 @@ Last Modified: 09.16.26
 Modification: Created cell class.
 '''
 
-class cell:
+class Cell:
     def __init__(self): 
         self.mine = False #is it a mine?
         self.revealed = False #is it revealed?
