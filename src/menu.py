@@ -1,0 +1,131 @@
+'''
+Author: Gaven Behrends
+Last Modified: 09.17.26
+Modification: Create menu interface and mine count slider
+'''
+
+import pyray as rl
+
+# Local constants
+_MINIMUM_MINES = 10
+_MAXIMUM_MINES = 20
+_DEFAULT_MINES = 15
+_SLIDER_HEIGHT = 8
+
+# This class manages configuration state before a game has started, and
+# renders an interface for changing settings. Currently only mine count.
+class Menu:
+    def __init__(self, font):
+        self.selected_mine_count = 15
+        self.mines_slider = Slider("Mines:",
+                _DEFAULT_MINES, _MINIMUM_MINES, _MAXIMUM_MINES)
+        self.font = font
+
+    def render(self):
+        screen_width = rl.get_screen_width()
+        screen_height = rl.get_screen_height()
+
+        panel_rect = rl.Rectangle(
+            screen_width // 2 + 4,
+            4,
+            screen_width // 2 - 8,
+            screen_height - 8,
+        )
+        rl.draw_rectangle_rec(panel_rect, [0,0,0,200])
+
+        title = "Options"
+        title_size = rl.measure_text_ex(self.font, title, 32, 2)
+        title_x = panel_rect.x + (panel_rect.width - title_size.x) // 2
+        rl.draw_text_ex(self.font, title, [title_x, panel_rect.y + 8],
+                        32, 2, rl.WHITE)
+
+        self.mines_slider.x = int(panel_rect.x + 16)
+        self.mines_slider.y = int(panel_rect.y + 60 + title_size.y)
+        self.mines_slider.width = int(panel_rect.width - 32)
+        self.mines_slider.render(self.font)
+
+
+class Slider():
+    def __init__(self, label, initial, minimum, maximum, step=1.0):
+        self.label = label
+        self.value = initial
+        self.x = 0
+        self.y = 0
+        self.width = 100
+
+        self.minimum = minimum
+        self.maximum = maximum
+        self._step = step
+        self._hovered = False
+        self._grabbed = False
+
+    # Draw the slider, and also initiate hovers
+    def render(self, font):
+        slider_position = self.value - self.minimum
+        slider_size = self.maximum - self.minimum
+        slider_ratio = slider_position / slider_size
+        offset = slider_ratio * self.width
+        rl.draw_rectangle_rounded(
+                rl.Rectangle(self.x, self.y, self.width, _SLIDER_HEIGHT), 
+                1.0, 32, rl.LIGHTGRAY)
+        rl.draw_rectangle_rounded(
+                rl.Rectangle(self.x, self.y, offset, _SLIDER_HEIGHT),
+                1.0, 32, rl.DARKBLUE)
+
+        handle_radius = _SLIDER_HEIGHT * 1.2
+        handle_y = int(self.y + _SLIDER_HEIGHT / 2)
+
+        # Detect hovering state and draw
+        self._hovered = rl.check_collision_point_circle(
+                rl.get_mouse_position(), [self.x + offset, handle_y], handle_radius)
+        rl.draw_circle(
+                int(self.x + self.width * slider_ratio),
+                handle_y, handle_radius, rl.RAYWHITE)
+        rl.draw_circle(
+                int(self.x + self.width * slider_ratio),
+                handle_y, handle_radius * 0.8,
+                rl.GRAY if self._hovered or self._grabbed else rl.DARKGRAY)
+
+        self._handle_mouse_input()
+        
+        # Draw the label, if applicable
+        if len(self.label) == 0:
+            return
+
+        label_str = self.label + " " + str(self.value)
+        label_size = rl.measure_text_ex(font, label_str, 32, 2)
+        rl.draw_text_ex(font, label_str,
+                        [self.x, self.y - label_size.y - 4], 32, 2, rl.WHITE)
+
+    # Update according to mouse input
+    def _handle_mouse_input(self):
+        mb = rl.MouseButton.MOUSE_BUTTON_LEFT
+
+        # Releasing the mouse button ceases grabbing
+        if rl.is_mouse_button_up(mb):
+            self._grabbed = False
+
+        # Start grabbing when clicking the handle
+        elif self._hovered and rl.is_mouse_button_pressed(mb):
+            self._grabbed = True
+        
+        if self._grabbed:
+            rl.set_mouse_cursor(rl.MouseCursor.MOUSE_CURSOR_RESIZE_EW)
+            
+            # The slider will attempt to match the mouse x while grabbed
+            target_x = rl.get_mouse_x()
+
+            # Full slider case
+            if target_x >= self.x + self.width:
+                self.value = self.maximum
+                return
+            # Empty slider case
+            if target_x < self.x:
+                self.value = self.minimum
+                return
+            # Otherwise, compute the value based on position
+            percentage = (target_x - self.x) / self.width
+            target_value = percentage * (self.maximum - self.minimum) + self.minimum
+            self.value = int(round(target_value / self._step) * self._step)
+        elif self._hovered:
+            rl.set_mouse_cursor(rl.MouseCursor.MOUSE_CURSOR_POINTING_HAND)
