@@ -21,11 +21,14 @@ class Grid():
                 cells = line.strip().split()
                 board.append(cells)
         return board
-    
+        
     def print(self): #prints the board to screen (should be edited by other members)
-        for row in self.board:
-            print(' '.join(row))
+        column_labels = [str(col + 1) for col in range(len(self.board[0]))]
+        print('   ' + ' '.join(f'{label:>2}' for label in column_labels))
 
+        for row_number, row in enumerate(self.board):
+            print(f'{row_number:>2} ' + ' '.join(f'{cell:>2}' for cell in row))
+    
     def edit(self, row, col, entry): #allows edits to the board
         if 0 <= row < len(self.board) and 0 <= col < len(self.board[row]):
             self.board[row][col] = entry
