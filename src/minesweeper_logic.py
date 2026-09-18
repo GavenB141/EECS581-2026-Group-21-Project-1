@@ -1,7 +1,7 @@
 '''
 Author: Max Toney, Cooper Fish
 Last Modified: 09.17.26
-Modification: Added place_mines as well as calc_adjacency (will do check_win later today)
+Modification: Added check_win
 '''
 
 import random
@@ -86,7 +86,13 @@ class Logic: #determines the logic of the game
                 self.reveal_cell(next_row, next_col) #runs the reveal function on the next targeted cell.
 
     def check_win(self):
-        pass #to be written
+        for row in range(self.rows):
+            for col in range(self.cols):
+                cell = self.grid[row][col] # targets the cell we're checking
+                if not cell.mine and not cell.revealed:
+                    return False # a safe cell is still hidden
+        self.game_over = True # every safe cell is revealed
+        return True
 
     def loss(self):
         self.game_over = True #changes the game over status to true
