@@ -1,0 +1,146 @@
+'''
+Author: Sakthivel Sivasubramanian
+ Create Board class to show the 10 x 10 board and naviagate input
+'''
+
+import pyray as rl # pyray is the library 
+from minesweeper_logic import Logic # this tracks the state of the game and ill use that 
+
+# constants for the 10 x 10 board
+_BoardRows = 10
+_BoardColumns = 10
+_CELL_size = 36
+_Cell_Padding = 2 # gap between cells 
+_Top_Space = 60  # this is reserved aboce the grid to show status text 
+
+# colors 
+_NUMBER_COLORS = {
+    1: rl.BLUE, # 1 = blue ... 
+    2: rl.DARKGREEN,
+    3: rl.RED,
+    4: rl.DARKBLUE,
+    5: rl.MAROON,
+    6: rl.SKYBLUE,
+    7: rl.BLACK,
+    8: rl.LIME,
+}
+
+CoveredColor = rl.ORANGE # color for covered cell 
+CoveredColorClick = rl.LIME 
+UncoveredColor = rl.RAYWHITE
+FlagColor= rl.RED
+MineColor = rl.BLACK
+GridLineColors = rl.VIOLET 
+
+
+class Board:  # this is for the board instances and renders input for the active game screen
+    def __init__(self, font, mine_count): # font ic created 
+        self.font = font
+        self.logic = Logic(mine_count)  # the game-state engine this board visualizes based on gaven's code 
+        self.mine_count = mine_count
+        self.first_click = True # tracks if the first click was placed 
+        self.win = False # win = all safe cells are revealed 
+
+        grid_width = _BoardColumns * _CELL_size
+        self.origin_x = (rl.get_screen_width() - grid_width) // 2
+        self.origin_y = _Top_Space
+
+    # this shows the board 
+    def render(self):
+        self._handle_input() # checks for clicks
+        self._draw_status_bar() # this is between playing, victory, and loss
+        self._draw_grid() 
+
+    # converts a screen  position into (row, column) or none if outside the grid
+    def _cell_at(self, x, y):
+        column = (x - self.origin_x) // _CELL_size
+        row = (y - self.origin_y) // _CELL_size
+        if 0 <= row < _BoardRows  and 0 <= column < _BoardColumns:
+            return int(row), int(column)
+        return None
+    # this reads the mouse every frame and updates the states 
+    def _handle_input(self): 
+        if self.logic.game_over or self.win: # when you win -> the game will not check your mouse clicks 
+            return  # ignore clicks once the game has ended
+
+        mouse_pos = rl.get_mouse_position()
+        target = self._cell_at(mouse_pos.x, mouse_pos.y)
+        if target is None:
+            return  
+        row, column = target
+
+        if rl.is_mouse_button_pressed(rl.MouseButton.MOUSE_BUTTON_LEFT):
+            if self.first_click:
+                # first click is guaranteed safe
+                self.logic.place_mines(row, column)
+                self.first_click = False
+            self.logic.reveal_cell(row, column)
+
+            if self.logic.game_over:
+                self._reveal_all_mines()  
+            elif self.logic.check_win():
+                self.win = True
+
+        elif rl.is_mouse_button_pressed(rl.MouseButton.MOUSE_BUTTON_RIGHT):
+            # flagging is allowed even before the first reveal
+            self.logic.grid[row][column].flag() 
+
+    def _reveal_all_mines(self):
+        for row in self.logic.grid:
+            for cell in row:
+                if cell.mine:
+                    cell.revealed = True
+
+    def _draw_status_bar(self):
+        if self.win:
+            status = "Victory"
+        elif self.logic.game_over:
+            status = "Game Over - Loss"
+        else:
+            status = "Playing"
+
+        status_size = rl.measure_text_ex(self.font, status, 28, 2)
+        status_x = (rl.get_screen_width() - status_size.x) // 2
+        rl.draw_text_ex(self.font, status, [status_x, 12], 28, 2, rl.WHITE)
+
+        flags_placed = sum(1 for row in self.logic.grid for cell in row if cell.flagged)
+        remaining = self.mine_count - flags_placed  
+        mine_text = f"Mines Remaining = {remaining}"
+        rl.draw_text_ex(self.font, mine_text, [self.origin_x, 12], 20, 2, rl.WHITE)
+
+    def _draw_grid(self):
+        mouse_pos = rl.get_mouse_position()
+        hovered = self._cell_at(mouse_pos.x, mouse_pos.y)  
+
+        for row in range(_BoardRows ):
+            for column in range(_BoardColumns):
+                cell = self.logic.grid[row][column]
+                x = self.origin_x + column * _CELL_size
+                y = self.origin_y + row * _CELL_size
+                rect = rl.Rectangle(x, y, _CELL_size - _Cell_Padding, _CELL_size - _Cell_Padding)
+
+                if cell.revealed:
+                    rl.draw_rectangle_rec(rect, UncoveredColor)
+                    if cell.mine:
+                        center_x = x + _CELL_size // 2
+                        center_y = y + _CELL_size // 2
+                        rl.draw_circle(int(center_x), int(center_y), _CELL_size * 0.25, MineColor)
+                    elif cell.adjacent > 0:
+                        number = str(cell.adjacent)
+                        color = _NUMBER_COLORS.get(cell.adjacent, rl.BLACK)
+                        text_size = rl.measure_text_ex(self.font, number, 22, 1)
+                        text_x = x + (_CELL_size - text_size.x) // 2
+                        text_y = y + (_CELL_size - text_size.y) // 2
+                        rl.draw_text_ex(self.font, number, [text_x, text_y], 22, 1, color)
+                    # adjacent == 0 and not a mine: leave the cell blank, per spec
+
+                else:
+                    is_hovered = hovered == (row, column)
+                    rl.draw_rectangle_rec(rect, CoveredColorClick if is_hovered else CoveredColor)
+                    if cell.flagged:
+                        flag_size = rl.measure_text_ex(self.font, "F", 20, 1)
+                        flag_x = x + (_CELL_size - flag_size.x) // 2
+                        flag_y = y + (_CELL_size - flag_size.y) // 2
+                        rl.draw_text_ex(self.font, "F", [flag_x, flag_y], 20, 1, FlagColor)
+
+                rl.draw_rectangle_lines_ex(rect, 1, GridLineColors)

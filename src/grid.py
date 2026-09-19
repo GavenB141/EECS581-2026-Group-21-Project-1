@@ -13,8 +13,6 @@ class Grid():
         self.size = size
         self.mine_count = mine_count
     # which class creates the grid? Grid or Logic?  
-        self._place_mines()
-        self._calculate_adjacent_mines()
 
     def _place_mines(self):
         # Placeholder for mine placement logic
