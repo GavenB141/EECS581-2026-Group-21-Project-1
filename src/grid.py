@@ -9,10 +9,9 @@ from minesweeper_logic import Logic
 
 class Grid():
 
-    def __init__(self, rows, cols, mines): #Initializes the Grid class
-        self.rows = rows
-        self.cols = cols
-        self.mines = mines
+    def __init__(self, siz=10, mine_count): #Initializes the Grid class
+        self.size = size
+        self.mine_count = mine_count
         self.board = [[0 for _ in range(self.cols)] for _ in range(self.rows)]
         self._place_mines()
         self._calculate_adjacent_mines()
