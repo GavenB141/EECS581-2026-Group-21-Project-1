@@ -1,6 +1,6 @@
 '''
 Author: Gaven Behrends
-Last Modified: 09.17.26
+Last Modified: 09.20.26
 Modification: Integrate menu and Logic class
 '''
 
@@ -14,9 +14,8 @@ def main():
     rl.init_window(640, 480, "Minesweeper")
     rl.set_target_fps(60)
 
-    font = rl.load_font("assets/font/NotoSerif-SemiBold.ttf")
-    menu = Menu(font)
-    board = Board(font, menu.mines_slider.value)
+    menu = Menu()
+    board = Board(rl.get_font_default(), menu.mines_slider.value)
 
     while not rl.window_should_close():
         # Reset the cursor each frame, so rendering code can set it per-frame
@@ -28,7 +27,6 @@ def main():
         board.render()
         rl.end_drawing()
 
-    rl.unload_font(font)
     rl.close_window()
 
 def draw_background():
