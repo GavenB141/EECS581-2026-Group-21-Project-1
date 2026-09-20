@@ -2,18 +2,19 @@
 Author: Max Toney, Cooper Fish
 Last Modified: 09.20.26
 Modification: Gaven - changed place_mines to exclude a 3x3 area rather than one cell
+Purpose: This module defines the Logic class, which tracks the state of the game. It places the mines, counts the adjacent mines for each cell, reveals cells, and checks for a win or a loss.
 '''
 
 import random
 from grid import Grid
 
 class Logic: #determines the logic of the game
-    def __init__(self, mine_count, size=10):
+    def __init__(self, mine_count, size=10): # stores the mine count, marks the game as not over, and creates the Grid of cells.
         self.mine_count = mine_count #mine counter
         self.game_over = False #status of if the game is still ongoing 
         self.grid = Grid(size)
     
-    def place_mines(self, safe_row=None, safe_col=None): 
+    def place_mines(self, safe_row=None, safe_col=None):# randomly places mines on the grid, leaving out the clicked cell and its 8 neighbors when a safe cell is given, then calculates the adjacent mine counts.
         all_cells = [
             (r, c)
             for r in range(self.grid.size)
@@ -31,7 +32,7 @@ class Logic: #determines the logic of the game
             self.grid.get_cell(row, col).mine = True # mark that cell as a mine
         self.calc_adjacency() # calculate adjacency counts now that mines are placed
 
-    def calc_adjacency(self):
+    def calc_adjacency(self): # counts the mines surrounding every non-mine cell and stores the count on the cell.
         for row in range(self.grid.size):
             for col in range(self.grid.size):
                 cell = self.grid.get_cell(row, col) # targets the cell we're counting for
@@ -52,7 +53,7 @@ class Logic: #determines the logic of the game
                             count += 1 # found a neighboring mine
                 cell.adjacent = count # store the final count on the cell
 
-    def reveal_cell(self, row, col):
+    def reveal_cell(self, row, col): # reveals a cell unless already revealed or flagged. Revealing a mine ends the game, and revealing a cell with 0 adjacent mines starts revealing its neighbors.
         cell = self.grid.get_cell(row, col) #targets the cell we are revealing
         if cell.revealed: #if already revealed, return
             return
@@ -65,7 +66,7 @@ class Logic: #determines the logic of the game
         if cell.adjacent == 0: #checks if revealed cell has no adjacent mines
             self.recursive_reveal(row, col) #if yes, recurse
 
-    def recursive_reveal(self, row, col):
+    def recursive_reveal(self, row, col): # calls reveal_cell on all 8 neighbors of an empty cell. Since reveal_cell calls this again for every empty neighbor, the reveal spreads until it reaches cells with adjacent mines.
         for row_change in [-1, 0, 1]: #changes the row and col to focus on adjacent cells
             for col_change in [-1, 0, 1]:
                 if row_change == 0 and col_change == 0: #checks if its focusing on the orignal cell
@@ -78,7 +79,7 @@ class Logic: #determines the logic of the game
                     continue
                 self.reveal_cell(next_row, next_col) #runs the reveal function on the next targeted cell.
 
-    def check_win(self):
+    def check_win(self): # returns True and ends the game if every safe cell has been revealed, otherwise returns False
         for row in range(self.grid.size):
             for col in range(self.grid.size):
                 cell = self.grid.get_cell(row, col) # targets the cell we're checking
@@ -87,6 +88,6 @@ class Logic: #determines the logic of the game
         self.game_over = True # every safe cell is revealed
         return True
 
-    def loss(self):
+    def loss(self): # game is over after a mine is revealed
         self.game_over = True #changes the game over status to true
         #might add more. reveal all mines on loss maybe?
