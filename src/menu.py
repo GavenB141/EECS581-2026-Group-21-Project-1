@@ -1,7 +1,8 @@
 '''
 Author: Gaven Behrends
-Last Modified: 09.17.26
-Modification: Create menu interface and mine count slider
+Last Modified: 09.20.26
+Modification: Abstract start button into a standalone function so main can use it.
+              Also improved comments
 '''
 
 import pyray as rl
@@ -22,9 +23,9 @@ class Menu:
         self.font = font
 
     def render(self):
+        # Determine the portion of the screen the menu should use
         screen_width = rl.get_screen_width()
         screen_height = rl.get_screen_height()
-
         panel_rect = rl.Rectangle(
             screen_width // 2 + 4,
             4,
@@ -33,38 +34,30 @@ class Menu:
         )
         rl.draw_rectangle_rec(panel_rect, [0,0,0,200])
 
+        # Draw the menu title
         title = "Options"
         title_size = rl.measure_text_ex(self.font, title, 32, 2)
         title_x = panel_rect.x + (panel_rect.width - title_size.x) // 2
         rl.draw_text_ex(self.font, title, [title_x, panel_rect.y + 8],
                         32, 2, rl.WHITE)
 
+        # Include the mine count slider
         self.mines_slider.x = int(panel_rect.x + 16)
         self.mines_slider.y = int(panel_rect.y + 60 + title_size.y)
         self.mines_slider.width = int(panel_rect.width - 32)
         self.mines_slider.render(self.font)
 
-        # new ... this is for the start button 
+        # Include a start button and return its status so the game knows when to start
         button_rect = rl.Rectangle(
             panel_rect.x + 16,
             self.mines_slider.y + 60,
             panel_rect.width - 32,
             40,
         )
-        rl.draw_rectangle_rec(button_rect, rl.DARKBLUE)
-        button_label = "Start Game"
-        label_size = rl.measure_text_ex(self.font, button_label, 24, 2)
-        label_x = button_rect.x + (button_rect.width - label_size.x) // 2
-        label_y = button_rect.y + (button_rect.height - label_size.y) // 2
-        rl.draw_text_ex(self.font, button_label, [label_x, label_y], 24, 2, rl.WHITE)
-
-        start_clicked = (
-            rl.check_collision_point_rec(rl.get_mouse_position(), button_rect)
-            and rl.is_mouse_button_pressed(rl.MouseButton.MOUSE_BUTTON_LEFT)
-        )
-        return start_clicked
+        return button(button_rect, "Start Game", self.font)
 
 
+# This class stores one numeric value and draws a slider widget to edit it
 class Slider():
     def __init__(self, label, initial, minimum, maximum, step=1.0):
         self.label = label
@@ -72,7 +65,6 @@ class Slider():
         self.x = 0
         self.y = 0
         self.width = 100
-
         self.minimum = minimum
         self.maximum = maximum
         self._step = step
@@ -81,21 +73,26 @@ class Slider():
 
     # Draw the slider, and also initiate hovers
     def render(self, font):
+        # Compute position and bounds of slider components
         slider_position = self.value - self.minimum
         slider_size = self.maximum - self.minimum
         slider_ratio = slider_position / slider_size
         offset = slider_ratio * self.width
+
+        # Draw empty slider
         rl.draw_rectangle_rounded(
                 rl.Rectangle(self.x, self.y, self.width, _SLIDER_HEIGHT), 
                 1.0, 32, rl.LIGHTGRAY)
+        # Draw the filled portion of the slider
         rl.draw_rectangle_rounded(
                 rl.Rectangle(self.x, self.y, offset, _SLIDER_HEIGHT),
                 1.0, 32, rl.DARKBLUE)
 
+        # Compute handle position
         handle_radius = _SLIDER_HEIGHT * 1.2
         handle_y = int(self.y + _SLIDER_HEIGHT / 2)
 
-        # Detect hovering state and draw
+        # Detect hovering state and draw handle
         self._hovered = rl.check_collision_point_circle(
                 rl.get_mouse_position(), [self.x + offset, handle_y], handle_radius)
         rl.draw_circle(
@@ -106,16 +103,15 @@ class Slider():
                 handle_y, handle_radius * 0.8,
                 rl.GRAY if self._hovered or self._grabbed else rl.DARKGRAY)
 
+        # Run input handling here
         self._handle_mouse_input()
         
         # Draw the label, if applicable
-        if len(self.label) == 0:
-            return
-
-        label_str = self.label + " " + str(self.value)
-        label_size = rl.measure_text_ex(font, label_str, 32, 2)
-        rl.draw_text_ex(font, label_str,
-                        [self.x, self.y - label_size.y - 4], 32, 2, rl.WHITE)
+        if len(self.label) != 0:
+            label_str = self.label + " " + str(self.value)
+            label_size = rl.measure_text_ex(font, label_str, 32, 2)
+            rl.draw_text_ex(font, label_str, [self.x, self.y - label_size.y - 4],
+                            32, 2, rl.WHITE)
 
     # Update according to mouse input
     def _handle_mouse_input(self):
@@ -149,3 +145,16 @@ class Slider():
             self.value = int(round(target_value / self._step) * self._step)
         elif self._hovered:
             rl.set_mouse_cursor(rl.MouseCursor.MOUSE_CURSOR_POINTING_HAND)
+
+
+# This function draws a button and returns True if it's been clicked.
+def button(rectangle, label, font):
+    hovered = rl.check_collision_point_rec(rl.get_mouse_position(), rectangle)
+
+    rl.draw_rectangle_rec(rectangle, rl.BLUE if hovered else rl.DARKBLUE)
+    label_size = rl.measure_text_ex(font, label, 20, 2)
+    label_x = rectangle.x + (rectangle.width - label_size.x) // 2
+    label_y = rectangle.y + (rectangle.height - label_size.y) // 2
+    rl.draw_text_ex(font, label, [label_x, label_y], 20, 2, rl.WHITE)
+
+    return hovered and rl.is_mouse_button_pressed(rl.MouseButton.MOUSE_BUTTON_LEFT)
