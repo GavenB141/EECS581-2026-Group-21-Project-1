@@ -32,4 +32,9 @@
 | 9.20.26 | Added flag count to status bar| 1.5 |
 | 9.20.26 | Added various comments to functions and file headers | 1 |
 
+## Anthony Tran
+| Date | Item | Hours |
+| :--- | :--- | ---: |
+| 9.14.26 | Team meeting | 1 |
+| 9.20.26 | Board A-J / 1-10 coordinate labels | 2 |
 
