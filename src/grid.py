@@ -4,7 +4,23 @@ Last Modified: 09.19.26
 Modification: Store Minesweeper cells and expose their status by coordinate
 '''
 
-from minesweeper_logic import Cell
+import pyray as rl
+
+
+class Cell:
+    def __init__(self):
+        self.mine = False
+        self.revealed = False
+        self.flagged = False
+        self.adjacent = 0
+
+    def reveal(self):
+        if not self.flagged:
+            self.revealed = True
+
+    def flag(self):
+        if not self.revealed:
+            self.flagged = not self.flagged
 
 
 class Grid:
@@ -37,3 +53,24 @@ class Grid:
 
     def adjacent_mines(self, row, col):
         return self._cell_at(row, col).adjacent
+
+    def render_status(self, font, mine_count, x=0, y=0, width=None, height=48):
+        if width is None:
+            width = rl.get_screen_width()
+
+        flag_count = sum(
+            1
+            for row in self.cells
+            for cell in row
+            if cell.flagged
+        )
+        mines_left = mine_count - flag_count
+
+        rl.draw_rectangle(x, y, width, height, rl.BLACK)
+        rl.draw_text(
+            f"Mines left: {mines_left}",
+            x + 12,
+            y + 12,
+            24,
+            rl.WHITE,
+        )

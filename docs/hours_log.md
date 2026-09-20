@@ -15,5 +15,6 @@
 | 9.17.26 | Removed more redundant code | 0.25 |
 | 9.18.26 | Reformated Grid Class to work with Minesweeper logic | 1 |
 | 9.19.26 | Changed class logic to follow team's design| 1 |
+| 9.20.26 | Status Bar Render | 0.5 |
 
 

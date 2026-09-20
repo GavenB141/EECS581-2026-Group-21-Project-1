@@ -83,15 +83,24 @@ class Board:  # this is for the board instances and renders input for the active
 
         elif rl.is_mouse_button_pressed(rl.MouseButton.MOUSE_BUTTON_RIGHT):
             # flagging is allowed even before the first reveal
-            self.logic.grid[row][column].flag() 
+            self.logic.grid.get_cell(row, column).flag()
 
     def _reveal_all_mines(self):
-        for row in self.logic.grid:
+        for row in self.logic.grid.cells:
             for cell in row:
                 if cell.mine:
                     cell.revealed = True
 
     def _draw_status_bar(self):
+        self.logic.grid.render_status(
+            self.font,
+            self.mine_count,
+            0,
+            0,
+            rl.get_screen_width(),
+            _Top_Space,
+        )
+
         if self.win:
             status = "Victory"
         elif self.logic.game_over:
@@ -103,18 +112,13 @@ class Board:  # this is for the board instances and renders input for the active
         status_x = (rl.get_screen_width() - status_size.x) // 2
         rl.draw_text_ex(self.font, status, [status_x, 12], 28, 2, rl.WHITE)
 
-        flags_placed = sum(1 for row in self.logic.grid for cell in row if cell.flagged)
-        remaining = self.mine_count - flags_placed  
-        mine_text = f"Mines Remaining = {remaining}"
-        rl.draw_text_ex(self.font, mine_text, [self.origin_x, 12], 20, 2, rl.WHITE)
-
     def _draw_grid(self):
         mouse_pos = rl.get_mouse_position()
         hovered = self._cell_at(mouse_pos.x, mouse_pos.y)  
 
         for row in range(_BoardRows ):
             for column in range(_BoardColumns):
-                cell = self.logic.grid[row][column]
+                cell = self.logic.grid.get_cell(row, column)
                 x = self.origin_x + column * _CELL_size
                 y = self.origin_y + row * _CELL_size
                 rect = rl.Rectangle(x, y, _CELL_size - _Cell_Padding, _CELL_size - _Cell_Padding)
