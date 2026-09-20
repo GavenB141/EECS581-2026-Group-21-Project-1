@@ -1,7 +1,7 @@
 '''
 Author: Jocelyn Miller
-Last Modified: 09.19.26
-Modification: Store Minesweeper cells and expose their status by coordinate
+Last Modified: 09.20.26
+Modification: Ashton - Added a flag count
 Purpose: This module defines the Cell and Grid classes, which represent the state of a Minesweeper game board. 
 Each Cell tracks whether it contains a mine, whether it has been revealed or flagged, and how many adjacent mines it has. 
 The Grid class manages a 2D array of Cells and provides methods to access their status and render the game state.
@@ -57,23 +57,36 @@ class Grid:
     def adjacent_mines(self, row, col): # This method returns the number of adjacent mines for the Cell at the specified coordinates.
         return self._cell_at(row, col).adjacent
 
-    def render_status(self, font, mine_count, x=0, y=0, width=None, height=48): # This method renders a status bar at the specified (x, y) position on the screen, displaying the number of mines left to flag. It calculates the number of flagged cells and subtracts that from the total mine count to determine how many mines are left. The status bar is drawn as a black rectangle with white text showing the remaining mines. If no width is provided, it defaults to the full screen width.
-        if width is None:
-            width = rl.get_screen_width()
-
-        flag_count = sum(
+    def flag_count(self): #This method calculates and returns a flags placed count
+        return sum(
             1
             for row in self.cells
             for cell in row
             if cell.flagged
         )
-        mines_left = mine_count - flag_count
+
+    def render_status(self, font, mine_count, x=0, y=0, width=None, height=48): # This method renders a status bar at the specified (x, y) position on the screen, displaying the number of mines left to flag. It calculates the number of flagged cells and subtracts that from the total mine count to determine how many mines are left. The status bar is drawn as a black rectangle with white text showing the remaining mines. If no width is provided, it defaults to the full screen width.
+        if width is None:
+            width = rl.get_screen_width()
+
+        mines_left = mine_count - int(self.flag_count())
 
         rl.draw_rectangle(x, y, width, height, rl.BLACK)
         rl.draw_text(
             f"Mines left: {mines_left}",
             x + 12,
-            y + 12,
-            24,
+            y + 16,
+            20,
+            rl.WHITE,
+        )
+
+        # shows the amount of flags remaining in the status bar on the right side
+        flags_text = f"Flags Placed: {self.flag_count()}"
+        flags_width = rl.measure_text(flags_text, 20)
+        rl.draw_text(
+            flags_text,
+            x + width - flags_width - 12,
+            y + 16,
+            20,
             rl.WHITE,
         )
