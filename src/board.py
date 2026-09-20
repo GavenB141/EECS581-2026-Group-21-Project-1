@@ -1,9 +1,11 @@
 '''
-Module: board.py
 Authors: Sakthivel Sivasubramanian, Anthony Tran
-Created: 09.18.26
 Last Modified: 09.20.26
-Modification: Add A-J column and 1-10 row coordinate labels
+Modification: Added comments; added A-J column and 1-10 row coordinate labels
+Purpose: This module defines the Board class, which draws the 10 x 10 Minesweeper grid nad the top status bar.
+        It reads the mouse each frame (left click reveals, right click flags) and uses the Logic class to track the game
+External sources: Claude (Anthropic) - column-letter loop, label layout approach, and typo
+        fixes in _draw_labels. All other code by the named authors.
 '''
 
 import pyray as rl # pyray is the library 
@@ -50,8 +52,8 @@ class Board:  # this is for the board instances and renders input for the active
         self.win = False # win = all safe cells are revealed 
 
         grid_width = _BoardColumns * _CELL_size
-        self.origin_x = (rl.get_screen_width() - grid_width) // 2
-        self.origin_y = _Top_Space + _LABEL_GUTTER
+        self.origin_x = (rl.get_screen_width() - grid_width) // 2 # splits the screen width evenly on both sides centers the grid horizontally
+        self.origin_y = _Top_Space + _LABEL_GUTTER # grid starts below the top bar plus the gutter that holds the column letters
 
     # this shows the board 
     def render(self):
@@ -64,7 +66,7 @@ class Board:  # this is for the board instances and renders input for the active
     def _cell_at(self, x, y):
         column = (x - self.origin_x) // _CELL_size
         row = (y - self.origin_y) // _CELL_size
-        if 0 <= row < _BoardRows  and 0 <= column < _BoardColumns:
+        if 0 <= row < _BoardRows  and 0 <= column < _BoardColumns:  # this check positions left of or above the grid that would give negative numbers
             return int(row), int(column)
         return None
     # this reads the mouse every frame and updates the states 
@@ -75,7 +77,7 @@ class Board:  # this is for the board instances and renders input for the active
         mouse_pos = rl.get_mouse_position()
         target = self._cell_at(mouse_pos.x, mouse_pos.y)
         if target is None:
-            return  
+            return  # the mouse is outside the grid, so there is nothing to do
         row, column = target
 
         if rl.is_mouse_button_pressed(rl.MouseButton.MOUSE_BUTTON_LEFT):
@@ -83,24 +85,24 @@ class Board:  # this is for the board instances and renders input for the active
                 # first click is guaranteed safe
                 self.logic.place_mines(row, column)
                 self.first_click = False
-            self.logic.reveal_cell(row, column)
-
-            if self.logic.game_over:
-                self._reveal_all_mines()  
+            self.logic.reveal_cell(row, column) 
+            # after every reveal, check whether the game has ended
+            if self.logic.game_over: 
+                self._reveal_all_mines()  # loss: show where all the mines were
             elif self.logic.check_win():
-                self.win = True
+                self.win = True  # win: every safe cell is revealed
 
         elif rl.is_mouse_button_pressed(rl.MouseButton.MOUSE_BUTTON_RIGHT):
             # flagging is allowed even before the first reveal
-            self.logic.grid.get_cell(row, column).flag()
+            self.logic.grid.get_cell(row, column).flag() 
 
-    def _reveal_all_mines(self):
+    def _reveal_all_mines(self): # reveals every mine on the board after a loss.
         for row in self.logic.grid.cells:
             for cell in row:
                 if cell.mine:
                     cell.revealed = True
 
-    def _draw_status_bar(self):
+    def _draw_status_bar(self): # Draws the black top bar with the mine and flag counts, and the game status
         self.logic.grid.render_status(
             self.font,
             self.mine_count,
@@ -109,35 +111,38 @@ class Board:  # this is for the board instances and renders input for the active
             rl.get_screen_width(),
             _Top_Space,
         )
-
+        # pick the status text 
         if self.win:
             status = "Victory"
         elif self.logic.game_over:
             status = "Game Over - Loss"
         else:
             status = "Playing"
-
+        #Centers horizontally
         status_size = rl.measure_text_ex(self.font, status, 28, 2)
         status_x = (rl.get_screen_width() - status_size.x) // 2
         rl.draw_text_ex(self.font, status, [status_x, 12], 28, 2, rl.WHITE)
 
-    def _draw_grid(self):
+    def _draw_grid(self): # draws every cell, covered cells show an F if flagged, revealed cells show a blank square, a mine number, or a mine.
         mouse_pos = rl.get_mouse_position()
         hovered = self._cell_at(mouse_pos.x, mouse_pos.y)  
-
+        # loop through every cell and draw it based on its state
         for row in range(_BoardRows ):
             for column in range(_BoardColumns):
                 cell = self.logic.grid.get_cell(row, column)
+                # top-left pixel position of this cell
                 x = self.origin_x + column * _CELL_size
                 y = self.origin_y + row * _CELL_size
                 rect = rl.Rectangle(x, y, _CELL_size - _Cell_Padding, _CELL_size - _Cell_Padding)
 
                 if cell.revealed:
                     rl.draw_rectangle_rec(rect, UncoveredColor)
+                    # draw the mine as a black circle in the middle of the cell
                     if cell.mine:
                         center_x = x + _CELL_size // 2
                         center_y = y + _CELL_size // 2
                         rl.draw_circle(int(center_x), int(center_y), _CELL_size * 0.25, MineColor)
+                    # draw the adjacent mine count colored by its value
                     elif cell.adjacent > 0:
                         number = str(cell.adjacent)
                         color = _NUMBER_COLORS.get(cell.adjacent, rl.BLACK)
@@ -148,14 +153,16 @@ class Board:  # this is for the board instances and renders input for the active
                     # adjacent == 0 and not a mine: leave the cell blank, per spec
 
                 else:
+                    # covered cells change color when the mouse is over them
                     is_hovered = hovered == (row, column)
                     rl.draw_rectangle_rec(rect, CoveredColorClick if is_hovered else CoveredColor)
                     if cell.flagged:
+                        # draw an F centered on flagged cells
                         flag_size = rl.measure_text_ex(self.font, "F", 20, 1)
                         flag_x = x + (_CELL_size - flag_size.x) // 2
                         flag_y = y + (_CELL_size - flag_size.y) // 2
                         rl.draw_text_ex(self.font, "F", [flag_x, flag_y], 20, 1, FlagColor)
-
+                # outline every cell
                 rl.draw_rectangle_lines_ex(rect, 1, GridLineColors)
     
     def _draw_labels(self):

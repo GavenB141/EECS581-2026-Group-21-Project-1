@@ -1,7 +1,9 @@
 '''
 Author: Gaven Behrends
 Last Modified: 09.20.26
-Modification: Add reset buttons to ended games
+Modification: Add reset buttons to ended games, added comments
+Purpose: Entry point of Minesweeper. Creates a window and runs the loop that switches between options menu and the game
+        One a game has ended, shows Go to Menu and Reset Buttons 
 '''
 
 import pyray as rl
@@ -9,7 +11,7 @@ from menu import Menu, button
 from board import Board
 
 
-def main():
+def main(): # Sets up the window and then runs the main loop until the window is closed. Each frame it draws either the menu or the board, and shows the reset buttons once the game has ended.
     rl.set_config_flags(rl.ConfigFlags.FLAG_MSAA_4X_HINT 
                         | rl.ConfigFlags.FLAG_VSYNC_HINT)
     rl.init_window(640, 480, "Minesweeper")
@@ -19,7 +21,7 @@ def main():
     menu = Menu(font) 
     board = None # only creates when the player starts the game
     in_game = False # False when still in the menu, True when the game is running
-
+    # main loop: runs once per frame until the window is closed
     while not rl.window_should_close():
         # Reset the cursor each frame, so rendering code can set it per-frame
         rl.set_mouse_cursor(rl.MouseCursor.MOUSE_CURSOR_DEFAULT)
@@ -31,6 +33,7 @@ def main():
             # menu.render returns True when the game is ready to start
             start_clicked = menu.render()
             if start_clicked:
+                # the board is created with mine count the slider is set to
                 board = Board(font, menu.mines_slider.value)
                 in_game = True
         else:
@@ -39,6 +42,7 @@ def main():
             board.render()
             # allow the player to reset
             if board.logic.game_over:
+                # the buttons are at the bottom of the window
                 button_width = (rl.get_screen_width() - 60) // 2
                 menu_rect = rl.Rectangle(20, rl.get_screen_height() - 50, 
                                          button_width, 40)
@@ -48,9 +52,11 @@ def main():
                 # it's not possible for both buttons to be clicked at once,
                 # so there is no `elif` here to prevent graphical jank
                 if button(menu_rect, "Go to Menu", font):
+                    # clearing the board means a new one is created the next time Start Game is clicked
                     in_game = False
                     board = None
                 if button(reset_rect, "Reset", font):
+                    # a new Board starts a fresh game with the same mine count
                     board = Board(font, menu.mines_slider.value)
 
         rl.end_drawing()
