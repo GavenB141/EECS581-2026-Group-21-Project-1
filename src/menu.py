@@ -3,6 +3,8 @@ Author: Gaven Behrends
 Last Modified: 09.20.26
 Modification: Abstract start button into a standalone function so main can use it.
               Also improved comments
+Purpose: This module defines the Menu and Slider classes and the button helper function. The Menu draws the options panel where the number of mines is set and the game is started.
+        The slider is used to change the mine count, while the button is used for the game start button and used in main.py for the end of game buttons
 '''
 
 import pyray as rl
@@ -16,13 +18,13 @@ _SLIDER_HEIGHT = 8
 # This class manages configuration state before a game has started, and
 # renders an interface for changing settings. Currently only mine count.
 class Menu:
-    def __init__(self, font):
+    def __init__(self, font): # sets the default mine count, creates the mines slider with its minimum, maximum, and default values, and stores the font.
         self.selected_mine_count = 15
         self.mines_slider = Slider("Mines:",
                 _DEFAULT_MINES, _MINIMUM_MINES, _MAXIMUM_MINES)
         self.font = font
 
-    def render(self):
+    def render(self): # draws the options panel, title, mines slider, and Start Game button. Returns True on the frame the Start Game button is clicked.
         # Draw the game title
         rl.draw_text_ex(self.font, "Minesweeper", [40, 20], 40, 2, rl.RAYWHITE)
 
@@ -39,8 +41,8 @@ class Menu:
 
         # Draw the menu title
         title = "Options"
-        title_size = rl.measure_text_ex(self.font, title, 32, 2)
-        title_x = panel_rect.x + (panel_rect.width - title_size.x) // 2
+        title_size = rl.measure_text_ex(self.font, title, 32, 2) 
+        title_x = panel_rect.x + (panel_rect.width - title_size.x) // 2 # centers the title
         rl.draw_text_ex(self.font, title, [title_x, panel_rect.y + 8],
                         32, 2, rl.WHITE)
 
@@ -62,7 +64,7 @@ class Menu:
 
 # This class stores one numeric value and draws a slider widget to edit it
 class Slider():
-    def __init__(self, label, initial, minimum, maximum, step=1.0):
+    def __init__(self, label, initial, minimum, maximum, step=1.0): # stores the slider's label, current value, range, step size, its position, and hover/grab state.
         self.label = label
         self.value = initial
         self.x = 0
