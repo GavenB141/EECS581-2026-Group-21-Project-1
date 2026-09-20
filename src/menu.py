@@ -15,10 +15,11 @@ _SLIDER_HEIGHT = 8
 # This class manages configuration state before a game has started, and
 # renders an interface for changing settings. Currently only mine count.
 class Menu:
-    def __init__(self):
+    def __init__(self, font):
         self.selected_mine_count = 15
         self.mines_slider = Slider("Mines:",
                 _DEFAULT_MINES, _MINIMUM_MINES, _MAXIMUM_MINES)
+        self.font = font
 
     def render(self):
         screen_width = rl.get_screen_width()
@@ -33,15 +34,35 @@ class Menu:
         rl.draw_rectangle_rec(panel_rect, [0,0,0,200])
 
         title = "Options"
-        title_size = rl.measure_text_ex(rl.get_font_default(), title, 30, 2)
+        title_size = rl.measure_text_ex(self.font, title, 32, 2)
         title_x = panel_rect.x + (panel_rect.width - title_size.x) // 2
-        rl.draw_text_ex(rl.get_font_default(), title, [title_x, panel_rect.y + 8],
+        rl.draw_text_ex(self.font, title, [title_x, panel_rect.y + 8],
                         32, 2, rl.WHITE)
 
         self.mines_slider.x = int(panel_rect.x + 16)
         self.mines_slider.y = int(panel_rect.y + 60 + title_size.y)
         self.mines_slider.width = int(panel_rect.width - 32)
-        self.mines_slider.render()
+        self.mines_slider.render(self.font)
+
+        # new ... this is for the start button 
+        button_rect = rl.Rectangle(
+            panel_rect.x + 16,
+            self.mines_slider.y + 60,
+            panel_rect.width - 32,
+            40,
+        )
+        rl.draw_rectangle_rec(button_rect, rl.DARKBLUE)
+        button_label = "Start Game"
+        label_size = rl.measure_text_ex(self.font, button_label, 24, 2)
+        label_x = button_rect.x + (button_rect.width - label_size.x) // 2
+        label_y = button_rect.y + (button_rect.height - label_size.y) // 2
+        rl.draw_text_ex(self.font, button_label, [label_x, label_y], 24, 2, rl.WHITE)
+
+        start_clicked = (
+            rl.check_collision_point_rec(rl.get_mouse_position(), button_rect)
+            and rl.is_mouse_button_pressed(rl.MouseButton.MOUSE_BUTTON_LEFT)
+        )
+        return start_clicked
 
 
 class Slider():
@@ -59,7 +80,7 @@ class Slider():
         self._grabbed = False
 
     # Draw the slider, and also initiate hovers
-    def render(self):
+    def render(self, font):
         slider_position = self.value - self.minimum
         slider_size = self.maximum - self.minimum
         slider_ratio = slider_position / slider_size
@@ -92,9 +113,9 @@ class Slider():
             return
 
         label_str = self.label + " " + str(self.value)
-        label_size = rl.measure_text_ex(rl.get_font_default(), label_str, 20, 2)
-        rl.draw_text_ex(rl.get_font_default(), label_str,
-                        [self.x, self.y - label_size.y - 4], 20, 2, rl.WHITE)
+        label_size = rl.measure_text_ex(font, label_str, 32, 2)
+        rl.draw_text_ex(font, label_str,
+                        [self.x, self.y - label_size.y - 4], 32, 2, rl.WHITE)
 
     # Update according to mouse input
     def _handle_mouse_input(self):
