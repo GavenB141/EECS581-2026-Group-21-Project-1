@@ -23,6 +23,9 @@ class Menu:
         self.font = font
 
     def render(self):
+        # Draw the game title
+        rl.draw_text_ex(self.font, "Minesweeper", [40, 20], 40, 2, rl.RAYWHITE)
+
         # Determine the portion of the screen the menu should use
         screen_width = rl.get_screen_width()
         screen_height = rl.get_screen_height()
