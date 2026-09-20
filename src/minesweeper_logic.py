@@ -1,7 +1,7 @@
 '''
 Author: Max Toney, Cooper Fish
-Last Modified: 09.17.26
-Modification: Added check_win
+Last Modified: 09.20.26
+Modification: Gaven - changed place_mines to exclude a 3x3 area rather than one cell
 '''
 
 import random
@@ -20,7 +20,12 @@ class Logic: #determines the logic of the game
             for c in range(self.grid.size)
         ] # builds list of all (r,c)
         if safe_row is not None and safe_col is not None:
-            all_cells.remove((safe_row, safe_col)) # protect the first click cell from being a mine
+            # protect the first click cell and its neighbors from being a mine
+            for r in range(safe_row - 1, safe_row + 2):
+                for c in range(safe_col - 1, safe_col + 2):
+                    if (r, c) in all_cells:
+                        all_cells.remove((r, c))
+
         mine_locations = random.sample(all_cells, self.mine_count) # pick unique random cells for mines
         for row, col in mine_locations:
             self.grid.get_cell(row, col).mine = True # mark that cell as a mine
