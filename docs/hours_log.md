@@ -24,3 +24,8 @@
 | 9.14.26 | Team meeting | 1 |
 | 9.17.26 | Created place_mines, calc_adjacency, and check_win functions | 3 |
 
+## Anthony Tran
+| Date | Item | Hours |
+| :--- | :--- | ---: |
+| 9.14.26 | Team meeting | 1 |
+| 9.20.26 | Board A-J / 1-10 coordinate labels | 2 |

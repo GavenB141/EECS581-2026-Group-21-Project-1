@@ -1,6 +1,9 @@
 '''
-Author: Sakthivel Sivasubramanian
- Create Board class to show the 10 x 10 board and naviagate input
+Module: board.py
+Authors: Sakthivel Sivasubramanian, Anthony Tran
+Created: 09.18.26
+Last Modified: 09.20.26
+Modification: Add A-J column and 1-10 row coordinate labels
 '''
 
 import pyray as rl # pyray is the library 
@@ -9,9 +12,14 @@ from minesweeper_logic import Logic # this tracks the state of the game and ill 
 # constants for the 10 x 10 board
 _BoardRows = 10
 _BoardColumns = 10
-_CELL_size = 36
+_CELL_size = 32  # was 36; shrunk to make room for the label gutter
 _Cell_Padding = 2 # gap between cells 
 _Top_Space = 60  # this is reserved aboce the grid to show status text 
+
+_LABEL_GUTTER = 24
+_LABEL_FONT_SIZE = 18
+_LABEL_PAD = 6  # gap between the row numbers and the grid
+_LABEL_COLOR = rl.RAYWHITE
 
 # colors 
 _NUMBER_COLORS = {
@@ -43,13 +51,14 @@ class Board:  # this is for the board instances and renders input for the active
 
         grid_width = _BoardColumns * _CELL_size
         self.origin_x = (rl.get_screen_width() - grid_width) // 2
-        self.origin_y = _Top_Space
+        self.origin_y = _Top_Space + _LABEL_GUTTER
 
     # this shows the board 
     def render(self):
         self._handle_input() # checks for clicks
         self._draw_status_bar() # this is between playing, victory, and loss
         self._draw_grid() 
+        self._draw_labels()
 
     # converts a screen  position into (row, column) or none if outside the grid
     def _cell_at(self, x, y):
@@ -148,3 +157,23 @@ class Board:  # this is for the board instances and renders input for the active
                         rl.draw_text_ex(self.font, "F", [flag_x, flag_y], 20, 1, FlagColor)
 
                 rl.draw_rectangle_lines_ex(rect, 1, GridLineColors)
+    
+    def _draw_labels(self):
+        #For the column letters, A-J, above the each column, centered.
+        for column in range (_BoardColumns):
+            letter = chr(ord('A')+ column)
+            size = rl.measure_text_ex(self.font, letter, _LABEL_FONT_SIZE, 1)
+            cell_x = self.origin_x + column * _CELL_size
+            label_x = cell_x + (_CELL_size - size.x) //2
+            label_y = self.origin_y - _LABEL_GUTTER + (_LABEL_GUTTER - size.y) //2
+            rl.draw_text_ex(self.font, letter, [label_x, label_y], 
+                            _LABEL_FONT_SIZE,1, _LABEL_COLOR)
+        #For row numbers 1-10, centered to the right of each row
+        for row in range (_BoardRows):
+            number = str(row + 1)
+            size= rl.measure_text_ex(self.font, number, _LABEL_FONT_SIZE, 1)
+            cell_y = self.origin_y + row * _CELL_size
+            label_y = cell_y + (_CELL_size - size.y)//2 
+            label_x = self.origin_x - _LABEL_PAD - size.x
+            rl.draw_text_ex(self.font, number, [label_x, label_y],
+                            _LABEL_FONT_SIZE, 1, _LABEL_COLOR)
