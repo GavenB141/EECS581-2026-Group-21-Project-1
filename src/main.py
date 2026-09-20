@@ -58,9 +58,17 @@ def main():
     rl.unload_font(font)
     rl.close_window()
 
+
+from math import sin
+
+
+# Draw a subtle animated gradient background
 def draw_background():
+    t = (sin(rl.get_time()) + 1) / 2
     rl.draw_rectangle_gradient_v(0, 0, rl.get_screen_width(), rl.get_screen_height(),
-                                 [0,0,56,255],[0,0,0,255])
+                                 [0,0,56,255],
+                                 rl.color_lerp([0,0,12,255],[0,0,30,255],t))
+
 
 if __name__ == "__main__":
     main()
