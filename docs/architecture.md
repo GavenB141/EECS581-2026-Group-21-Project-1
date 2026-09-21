@@ -8,13 +8,15 @@
 * draw_background - This draws at the start of every frame to ensure old frames don't bleed into the next.
   
 ## board.py
-* Board Class  
-    * render -
-    * _cell_at -
-    * _handle_input -
-    * _reveal_all_mines -
-    * _draw_status_bar -
-    * _draw_grid - 
+* Board Class
+The Board class draws the 10 by 10 Minesweeper grid and the top status bar, and reads mouse input each frame to update the game through the Logic class.
+    * render - Called once per frame. Handles input, then draws the status bar, the grid, and the row/column labels, in that order.
+    * _cell_at - Converts a screen pixel position (such as the mouse position) into a (row, column) grid coordinate, or returns None if the position falls outside the grid.
+    * _handle_input - Reads the mouse each frame. A left click reveals a cell (placing mines first if it's the very first click of the game, so that click is always safe) and checks for a win or loss afterward. A right click toggles a flag on a covered cell.
+    * _reveal_all_mines - After a loss, marks every mine cell as revealed so the player can see where all the mines were.
+    * _draw_status_bar - Draws the black top bar showing mines/flags remaining (via the Grid class's render_status), plus centered text showing whether the game is Playing, a Victory, or a Loss.
+    * _draw_grid - Draws all 100 cells based on their current state: covered cells (highlighted on hover, with an "F" if flagged) or revealed cells (blank, a colored adjacent-mine number, or a mine).
+    * _draw_labels - Draws the A-J column letters above the grid and the 1-10 row numbers to its left, centered against each corresponding column and row.
 
 ## grid.py
 * Cell Class  
