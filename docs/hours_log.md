@@ -7,6 +7,7 @@
 | 9.14.26 | Team meeting | 1 |
 | 9.17.26 | Menu screen | 2 |
 | 9.20.26 | Update main.py to handle game resetting | 1 |
+| 9.20.26 | Fill out README.md and adjust menu graphics | 0.25 |
 
 ## Jocelyn Miller
 | Date | Item | Hours |
