@@ -34,12 +34,12 @@ The Grid class will create a 10 by 10 grid of cells, that can be used to render 
 
 ## minesweeper_logic.py
 * Logic Class  
-  * place_mines -
-  * calc_adjacency -
-  * reveal_cell -
-  * recursive_reveal -
-  * check_win -
-  * loss - 
+  * place_mines - When the first cell is clicked to start the game, this function randomly places mines on the grid, excluding whichever cell was clicked and it's adjacent cells.
+  * calc_adjacency - Counts the mines adjacent to any non-mine cell and stores the count on the cell.
+  * reveal_cell - Reveals a cell. If the cell is a mine, it ends the game. If the cell has zero adjacent mines, it reveals all surrounding cells.
+  * recursive_reveal - Continuously recalls the reveal_cell function if the conditions are right.
+  * check_win - Ends the game with a victory if every non-mine cell is revealed.
+  * loss - Ends the game in a loss if any mine cell is revealed.
 
 ## menu.py
 * Menu class  
