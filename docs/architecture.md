@@ -4,8 +4,8 @@
 ---
 
 ## main.py
-* main -
-* draw_background -
+* main - The entry point of the program. Handles resources and moving between the menu and game states.
+* draw_background - This draws at the start of every frame to ensure old frames don't bleed into the next.
   
 ## board.py
 * Board Class  
@@ -42,10 +42,13 @@ The Grid class will create a 10 by 10 grid of cells, that can be used to render 
   * loss - Ends the game in a loss if any mine cell is revealed.
 
 ## menu.py
-* Menu class  
-    * render - 
+* Menu class
+Stores options to set up the game with (currently just mine count). Renders the title screen and input elements to edit options with.
+    * render - Draws and handles input for the menu screen in the current frame.
     
-* Slider class  
-     * render -
-     * _handle_mouse_input
-* button -
+* Slider class
+Stores one numeric value and draws a slider widget to edit it with.
+     * render - Draws the slider to the screen and tracks when it is hovered over. Also calls _handle_mouse_input.
+     * _handle_mouse_input - Watches mouse input whenever the slider is being hovered. Watches for clicks to grab the slider, and moves with the cursor while grabbed.
+
+* button - A standalone function to render a button widget. Draws the button and returns True if the area drawn to is clicked.
