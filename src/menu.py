@@ -53,10 +53,10 @@ class Menu:
 
         # Draw the menu title
         title = "Options"
-        title_size = rl.measure_text_ex(self.font, title, 32, 2) 
+        title_size = rl.measure_text_ex(self.font, title, 30, 2) 
         title_x = panel_rect.x + (panel_rect.width - title_size.x) // 2 # centers the title
         rl.draw_text_ex(self.font, title, [title_x, panel_rect.y + 8],
-                        32, 2, rl.WHITE)
+                        30, 2, rl.WHITE)
 
         # Include the mine count slider
         self.mines_slider.x = int(panel_rect.x + 16)
@@ -126,9 +126,9 @@ class Slider():
         # Draw the label, if applicable
         if len(self.label) != 0:
             label_str = self.label + " " + str(self.value)
-            label_size = rl.measure_text_ex(font, label_str, 32, 2)
+            label_size = rl.measure_text_ex(font, label_str, 20, 2)
             rl.draw_text_ex(font, label_str, [self.x, self.y - label_size.y - 4],
-                            32, 2, rl.WHITE)
+                            20, 2, rl.WHITE)
 
     # Update according to mouse input
     def _handle_mouse_input(self):
