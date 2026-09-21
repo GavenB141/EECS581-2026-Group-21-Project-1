@@ -18,7 +18,9 @@ def main(): # Sets up the window and then runs the main loop until the window is
     rl.set_target_fps(60)
 
     font = rl.get_font_default()
-    menu = Menu(font) 
+    # Forgive me for this silliness courtesy of ChatGPT
+    cover_image = rl.load_texture("assets/chatgpt_rat.png")
+    menu = Menu(font, cover_image)
     board = None # only creates when the player starts the game
     in_game = False # False when still in the menu, True when the game is running
     # main loop: runs once per frame until the window is closed
@@ -61,6 +63,7 @@ def main(): # Sets up the window and then runs the main loop until the window is
 
         rl.end_drawing()
 
+    rl.unload_texture(cover_image)
     rl.unload_font(font)
     rl.close_window()
 

@@ -18,26 +18,38 @@ _SLIDER_HEIGHT = 8
 # This class manages configuration state before a game has started, and
 # renders an interface for changing settings. Currently only mine count.
 class Menu:
-    def __init__(self, font): # sets the default mine count, creates the mines slider with its minimum, maximum, and default values, and stores the font.
+    # sets the default mine count, creates the mines slider with its minimum, maximum, and default values, and stores the font.
+    def __init__(self, font, cover_image=None):
         self.selected_mine_count = 15
         self.mines_slider = Slider("Mines:",
                 _DEFAULT_MINES, _MINIMUM_MINES, _MAXIMUM_MINES)
         self.font = font
+        self.cover_image = cover_image
 
-    def render(self): # draws the options panel, title, mines slider, and Start Game button. Returns True on the frame the Start Game button is clicked.
-        # Draw the game title
-        rl.draw_text_ex(self.font, "Minesweeper", [40, 20], 40, 2, rl.RAYWHITE)
-
-        # Determine the portion of the screen the menu should use
+    # draws the options panel, title, mines slider, and Start Game button. Returns True on the frame the Start Game button is clicked.
+    def render(self):
         screen_width = rl.get_screen_width()
         screen_height = rl.get_screen_height()
+
+        # Draw humorous image
+        if self.cover_image is not None:
+            image_size = screen_height
+            image_src = rl.Rectangle(0, 0, self.cover_image.width, self.cover_image.height)
+            image_rect = rl.Rectangle(-50, 0, image_size, image_size)
+            rl.draw_texture_pro(self.cover_image, image_src, image_rect,
+                                [0,0], 0, rl.WHITE)
+        # Draw the game title
+        rl.draw_text_ex(self.font, "Minesweeper", [20, 20],
+                        40, 2, rl.RAYWHITE)
+
+        # Determine the portion of the screen the menu should use
         panel_rect = rl.Rectangle(
             screen_width // 2 + 4,
             4,
             screen_width // 2 - 8,
             screen_height - 8,
         )
-        rl.draw_rectangle_rec(panel_rect, [0,0,0,200])
+        rl.draw_rectangle_rec(panel_rect, [0,0,0,240])
 
         # Draw the menu title
         title = "Options"
