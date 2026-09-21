@@ -46,6 +46,14 @@
 | 9.20.26 | updated board.py to match teammates' revised Grid | 0.5 |
 | 9.20.26 | fixed game state transition bug in main.py and (start button and mine count slider wiring) | 1.5 |
 
+## Max Toney
+| Date | Item | Hours |
+| :--- | :--- | ---: |
+| 9.14.26 | Team meeting | 1 |
+| 9.16.26 | Created the Cell class | .5 |
+| 9.16.26 | Created the Logic class and added functions for reveal_cell, recursive_reveal, and loss | 2 |
+| 9.20.26 | Added descriptions for the Logic class's functions in architecture.md | .25 |
+
 
 
 
