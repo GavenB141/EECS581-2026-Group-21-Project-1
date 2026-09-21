@@ -41,10 +41,10 @@
 ## Sakthivel Sivasubramanian
 | Date | Item | Hours |
 | :--- | :--- | ---: |
-| 9.18.26 | Wrote board.py ... grid rendering and mouse handling and win/loss display | 2 |
+| 9.18.26 | Wrote board.py ... grid rendering and mouse handling and win/loss display | 1 |
 | 9.18.26 | debugged and tested board.py locally (color overlap fixes) | 0.5 |
 | 9.20.26 | updated board.py to match teammates' revised Grid | 0.5 |
-| 9.20.26 | fixed game state transition bug in main.py and (start button and mine count slider wiring) | 2 |
+| 9.20.26 | fixed game state transition bug in main.py and (start button and mine count slider wiring) | 1.5 |
 
 
 
